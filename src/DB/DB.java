@@ -8,21 +8,14 @@ public class DB {
     private String url = "jdbc:mysql://sql8.freesqldatabase.com/sql8690173";
     private String username = "sql8690173";
     private String password = "IiT4VGnzva";
+    private User a = new User();
+    private Menu b = new Menu();
+    private Order c = new Order();
     public void ListOfUsers() {
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, username, password)){
-
-                Statement statement = conn.createStatement();
-
-                ResultSet resultSet = statement.executeQuery("SELECT * FROM users");
-                while(resultSet.next()){
-
-                    int id = resultSet.getInt(1);
-                    String login = resultSet.getString(2);
-                    String pasword = resultSet.getString(3);
-                    System.out.printf("%d. %s %s \n", id, login, pasword);
-                }
+                a.ListOfUser(conn);
             }
         }
         catch(Exception ex){
@@ -30,58 +23,37 @@ public class DB {
             System.out.println(ex);
         }
     }
-    public boolean AddUser(String l, String p) {
+    public int AddUser(String l, String p) {
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, username, password)){
-
-                Statement statement = conn.createStatement();
-
-                ResultSet resultSet = statement.executeQuery("SELECT * FROM users");
-                boolean t = true;
-                while(resultSet.next()){
-
-                    int id = resultSet.getInt(1);
-                    String login = resultSet.getString(2);
-                    if (login.equals(l)) {
-                        t = false;
-                        System.out.println("Пользователь с таким именем уже существует");
-                        return false;
-                    }
-                }
-                if (t){
-                    statement.executeUpdate("INSERT users(Login, Password) VALUES ('"+ l + "', '" + p + "')");
-                    System.out.println("Пользователь создан");
-                    return true;
-                }
-                return false;
+                return a.AddUser(conn, l, p);
             }
         }
         catch(Exception ex){
             System.out.println("Connection failed...");
             System.out.println(ex);
-            return false;
+            return 0;
+        }
+    }
+    public int LogIn(String l, String p) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)){
+                return a.LogIn(conn, l, p);
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return 0;
         }
     }
     public boolean DeleteUser(String l) {
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, username, password)){
-
-                Statement statement = conn.createStatement();
-
-                ResultSet resultSet = statement.executeQuery("SELECT * FROM users");
-                while(resultSet.next()){
-
-                    int id = resultSet.getInt(1);
-                    String login = resultSet.getString(2);
-                    if (login.equals(l)) {
-                        statement.executeUpdate("DELETE FROM users WHERE Login = '" + l + "'");
-                        System.out.println("Пользователь удален");
-                        return true;
-                    }
-                }
-                return false;
+                return a.DeleteUser(conn, l);
             }
         }
         catch(Exception ex){
@@ -91,51 +63,38 @@ public class DB {
         }
     }
 
-    public void ListOfDishes() {
+    public int ListOfDishes() {
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, username, password)){
-
-                Statement statement = conn.createStatement();
-
-                ResultSet resultSet = statement.executeQuery("SELECT * FROM Dishes");
-                System.out.println("Меню:");
-                int id = 1;
-                while(resultSet.next()){
-                    String name = resultSet.getString(2);
-                    String prise = resultSet.getString(3);
-                    String count = resultSet.getString(4);
-                    System.out.printf("%d. %s %s %s %s \n", id, name, prise, "количество:", count);
-                    id += 1;
-                }
+                return b.ListOfDishes(conn);
             }
         }
         catch(Exception ex){
             System.out.println("Connection failed...");
             System.out.println(ex);
+            return 0;
         }
     }
-    public void MakeOrder(String[] orders) {
+    public int CreateOrder(int IdU) {
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (Connection conn = DriverManager.getConnection(url, username, password)){
-
-                Statement statement = conn.createStatement();
-
-                ResultSet resultSet = statement.executeQuery("SELECT * FROM Dishes");
-                int id = 1;
+                return b.CreateOrder(conn, IdU);
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return 0;
+        }
+    }
+    public void MakeOrder(String[] orders, int ma) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)) {
                 Connection con = DriverManager.getConnection(url, username, password);
-                Statement statements = con.createStatement();
-                while(resultSet.next()){
-                    int Id = resultSet.getInt(1);
-                    String name = resultSet.getString(2);
-                    String prise = resultSet.getString(3);
-                    String count = resultSet.getString(4);
-                    if (Integer.toString(id).equals(orders[id])) {
-                        statements.executeUpdate("INSERT DishToOrd(IdO, IdD, Count) VALUES ("+ "1" + ", " + Integer.toString(Id) + ", " + '1' + ")");
-                    }
-                    id += 1;
-                }
+                b.MakeOrder(conn, con , orders, ma);
             }
         }
         catch(Exception ex){
@@ -143,4 +102,194 @@ public class DB {
             System.out.println(ex);
         }
     }
+    public int UsersOrders(int IdU) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)){
+                return c.UsersOrders(conn, IdU);
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return 0;
+        }
+    }
+    public boolean ChangeOrderStatus(int Idd, String s) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)){
+
+                Statement statement = conn.createStatement();
+                statement.executeUpdate("UPDATE Orders SET Status = '" + s + "' WHERE Orders.Id = " + Integer.toString(Idd) + ";");
+                return true;
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return false;
+        }
+    }
+
+    public boolean UpdateOrderPrise(int Idd) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)){
+                boolean b1 = c.UpdateOrderPrise(conn, Idd);
+                return b1;
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return false;
+        }
+    }
+    public int UserOrderformList(int IdU, int t) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)){
+                return c.UserOrderformList(conn, IdU, t);
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return 0;
+        }
+    }
+    public String GetOrderStatus(int IdU, int t) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)){
+
+                return c.GetOrderStatus(conn, IdU, t);
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return "None";
+        }
+    }
+    public boolean DeleteOrder(int OId) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)){
+
+                Statement statement = conn.createStatement();
+                statement.executeUpdate("DELETE FROM Orders WHERE Id = " + OId);
+                System.out.println("Заказ удален");
+                return true;
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return false;
+        }
+    }
+    public boolean DeleteDish(int OId) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)){
+
+                Statement statement = conn.createStatement();
+                statement.executeUpdate("DELETE FROM Dishes WHERE Id = " + OId);
+                System.out.println("Блюдо удалено");
+                return true;
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return false;
+        }
+    }
+    public boolean AddDish(String n,  String p, String c, String t) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)){
+
+                Statement statement = conn.createStatement();
+                statement.executeUpdate("INSERT Dishes(Name, Prise, Count, Time) VALUES ('"+ n + "', " + p + ", " + c + ", " + t + ")");
+                System.out.println("Блюдо добалено");
+                return true;
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return false;
+        }
+    }
+    public boolean ChangeDish(String t, String tt, int OId) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)){
+
+                Statement statement = conn.createStatement();
+                statement.executeUpdate("UPDATE Dishes SET " + t + " = " + tt + " WHERE Dishes.Id = " + Integer.toString(OId) + ";");
+                System.out.println("Блюдо изменено");
+                return true;
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return false;
+        }
+    }
+    public String GetUserType(int IdU) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)){
+
+                Statement statement = conn.createStatement();
+
+                ResultSet resultSet = statement.executeQuery("SELECT * FROM users");
+
+                while(resultSet.next()){
+                    int id = resultSet.getInt(1);
+                    String type = resultSet.getString(3);
+                    if (IdU == id) {
+                        return type;
+                    }
+                }
+                return "None";
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return "None";
+        }
+    }
+    public int UserDishformList(int t) {
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection conn = DriverManager.getConnection(url, username, password)){
+
+                Statement statement = conn.createStatement();
+
+                ResultSet resultSet = statement.executeQuery("SELECT * FROM Dishes");
+                int k = 1;
+                while(resultSet.next()){
+                    int id = resultSet.getInt(1);
+                    if (k == t) {
+                        return id;
+                    }
+                    k += 1;
+                }
+                return 0;
+            }
+        }
+        catch(Exception ex){
+            System.out.println("Connection failed...");
+            System.out.println(ex);
+            return 0;
+        }
+    }
+
 }
